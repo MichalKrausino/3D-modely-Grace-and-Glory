@@ -1,0 +1,21 @@
+{
+  "name": "AutoSchedule AI",
+  "short_name": "AutoSchedule",
+  "description": "An intelligent minimalist task planner that automatically schedules user tasks into their calendar.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#AEA13A",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
