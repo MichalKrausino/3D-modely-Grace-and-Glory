@@ -1,36 +1,42 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
+import Link from "next/link";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "AutoSchedule AI",
-  description: "An intelligent minimalist task planner that automatically schedules user tasks into their calendar.",
+  description: "Intelligent minimalist task planner",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <head>
-        <link rel="manifest" href="/manifest.json" />
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+      <body className={inter.className}>
+        <header className="py-4 px-8 border-b">
+          <nav className="flex items-center justify-between">
+            <Link href="/" className="text-2xl font-bold text-gray-800">
+              AutoSchedule AI
+            </Link>
+            <div className="flex items-center gap-4">
+              <Link href="/" className="text-gray-600 hover:text-gray-800">
+                Dashboard
+              </Link>
+              <Link href="/add-task" className="text-gray-600 hover:text-gray-800">
+                Add Task
+              </Link>
+              <Link href="/stats" className="text-gray-600 hover:text-gray-800">
+                Stats
+              </Link>
+            </div>
+          </nav>
+        </header>
+        <main>{children}</main>
       </body>
     </html>
   );

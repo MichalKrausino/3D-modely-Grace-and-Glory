@@ -1,0 +1,93 @@
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, Field
+from typing import List, Optional, Literal
+from uuid import UUID, uuid4
+from fastapi.middleware.cors import CORSMiddleware
+
+# --- Pydantic Models ---
+class TaskBase(BaseModel):
+    name: str
+    duration: int = 60
+    category: str
+    deadline: Optional[str] = None
+
+class TaskCreate(TaskBase):
+    pass
+
+class Task(TaskBase):
+    id: UUID
+    status: Literal['Planned', 'In Progress', 'Done'] = 'Planned'
+
+# --- In-memory database ---
+db: List[Task] = []
+
+# --- FastAPI App ---
+app = FastAPI(
+    title="AutoSchedule AI API",
+    description="API for managing tasks and scheduling.",
+    version="0.1.0",
+)
+
+# --- CORS Middleware ---
+# This allows the frontend (running on localhost:3000) to communicate with the backend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+# --- API Endpoints ---
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to AutoSchedule AI API"}
+
+@app.post("/tasks", response_model=Task, status_code=201)
+def create_task(task_create: TaskCreate):
+    """
+    Create a new task.
+    """
+    new_task = Task(id=uuid4(), **task_create.dict())
+    db.append(new_task)
+    return new_task
+
+@app.get("/tasks", response_model=List[Task])
+def get_tasks():
+    """
+    Retrieve all tasks.
+    """
+    return db
+
+@app.get("/tasks/{task_id}", response_model=Task)
+def get_task(task_id: UUID):
+    """
+    Retrieve a single task by its ID.
+    """
+    task = next((task for task in db if task.id == task_id), None)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return task
+
+@app.put("/tasks/{task_id}", response_model=Task)
+def update_task_status(task_id: UUID, status: Literal['Planned', 'In Progress', 'Done']):
+    """
+    Update the status of a task.
+    """
+    task = next((task for task in db if task.id == task_id), None)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    task.status = status
+    return task
+
+@app.delete("/tasks/{task_id}", status_code=204)
+def delete_task(task_id: UUID):
+    """
+    Delete a task by its ID.
+    """
+    task_index = next((i for i, task in enumerate(db) if task.id == task_id), None)
+    if task_index is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    db.pop(task_index)
+    return
