@@ -7,6 +7,8 @@ from fastapi.responses import RedirectResponse
 from google_auth import get_google_auth_url, fetch_google_token, get_calendar_service
 import state as app_state
 import datetime
+from scheduler import find_best_slot, get_mock_calendar
+from scheduler_models import Task as SchedulerTask, TimeSlot
 
 # --- Pydantic Models ---
 class TaskBase(BaseModel):
@@ -135,3 +137,12 @@ def get_calendar_events():
     ).execute()
     events = events_result.get('items', [])
     return events
+
+@app.post("/schedule-task", response_model=TimeSlot)
+def schedule_task(task: SchedulerTask):
+    """
+    Schedules a task in the user's calendar.
+    """
+    calendar = get_mock_calendar()
+    best_slot = find_best_slot(task, calendar)
+    return best_slot

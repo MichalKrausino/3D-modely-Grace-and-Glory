@@ -23,6 +23,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Toaster, toast } from "sonner";
 import { DatePicker } from "../ui/date-picker";
+import api from "@/lib/api";
 
 export function AddTaskForm() {
   const addTask = useOfflineTasksStore((state) => state.addTask);
@@ -37,13 +38,30 @@ export function AddTaskForm() {
       toast.error("Please fill out all fields.");
       return;
     }
-    await addTask({
+    const newTask = {
       name,
       duration,
       category,
       deadline: deadline?.toISOString(),
-    });
+    };
+    await addTask(newTask);
     toast.success("Task added successfully!");
+
+    try {
+      const response = await api.post("/schedule-task", {
+        duration: newTask.duration,
+        deadline: newTask.deadline,
+      });
+      const suggestedSlot = response.data;
+      toast.info(
+        `Suggested time: ${new Date(
+          suggestedSlot.start
+        ).toLocaleString()} - ${new Date(suggestedSlot.end).toLocaleString()}`
+      );
+    } catch (error) {
+      toast.error("Failed to get scheduling suggestion.");
+    }
+
     setName("");
     setDuration(60);
     setCategory("");

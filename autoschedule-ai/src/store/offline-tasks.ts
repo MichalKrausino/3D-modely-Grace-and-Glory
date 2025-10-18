@@ -21,6 +21,7 @@ export const useOfflineTasksStore = create<OfflineTasksState>((set, get) => ({
     const newTask = { ...task, id: crypto.randomUUID(), status: 'Planned' as TaskStatus, synced: false };
     await db.tasks.add(newTask);
     await get().fetchTasks();
+    return newTask;
   },
   updateTaskStatus: async (taskId, status) => {
     await db.tasks.update(taskId, { status, synced: false });
