@@ -22,12 +22,14 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Toaster, toast } from "sonner";
+import { DatePicker } from "../ui/date-picker";
 
 export function AddTaskForm() {
   const addTask = useOfflineTasksStore((state) => state.addTask);
   const [name, setName] = useState("");
   const [duration, setDuration] = useState(60);
   const [category, setCategory] = useState("");
+  const [deadline, setDeadline] = useState<Date | undefined>(undefined);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,11 +37,17 @@ export function AddTaskForm() {
       toast.error("Please fill out all fields.");
       return;
     }
-    await addTask({ name, duration, category });
+    await addTask({
+      name,
+      duration,
+      category,
+      deadline: deadline?.toISOString(),
+    });
     toast.success("Task added successfully!");
     setName("");
     setDuration(60);
     setCategory("");
+    setDeadline(undefined);
   };
 
   return (
@@ -75,13 +83,7 @@ export function AddTaskForm() {
               </div>
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="deadline">Deadline</Label>
-                {/* Date Picker will go here */}
-                <Input
-                  id="deadline"
-                  type="text"
-                  placeholder="Select a date"
-                  disabled
-                />
+                <DatePicker date={deadline} setDate={setDeadline} />
               </div>
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="category">Category</Label>

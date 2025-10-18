@@ -1,19 +1,14 @@
+"use client";
+
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
-
-const inter = Inter({ subsets: ["latin"] });
-
-export const metadata: Metadata = {
-  title: "AutoSchedule AI",
-  description: "Intelligent minimalist task planner",
-};
-
-"use client";
-
 import { useEffect } from "react";
 import { syncService } from "@/lib/sync";
+import { PageTransition } from "@/components/ui/page-transition";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,
@@ -48,7 +43,7 @@ export default function RootLayout({
             </div>
           </nav>
         </header>
-        <main>{children}</main>
+        <PageTransition>{children}</PageTransition>
       </body>
     </html>
   );

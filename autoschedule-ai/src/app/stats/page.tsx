@@ -13,7 +13,7 @@ export default function StatsPage() {
   return (
     <div className="container mx-auto py-10">
       <h1 className="text-4xl font-bold mb-8">Statistics</h1>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader>
             <CardTitle>Total Tasks</CardTitle>

@@ -17,6 +17,8 @@ def run_verification():
         # Fill out the form
         page.get_by_label("Task Name").fill("My new test task")
         page.get_by_label("Duration (in minutes)").fill("30")
+        page.get_by_role("button", name="Pick a date").click()
+        page.get_by_role("button", name="15").click()
         page.get_by_role("button", name="Select a category").click()
         page.get_by_role("option", name="Work").click()
         page.get_by_role("button", name="Add Task").click()
