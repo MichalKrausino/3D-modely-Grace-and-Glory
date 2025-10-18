@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect } from "react";
-import { useTasksStore } from "@/store/tasks";
+import { useOfflineTasksStore } from "@/store/offline-tasks";
 import { TaskCard } from "@/components/tasks/TaskCard";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default function Home() {
-  const { tasks, fetchTasks } = useTasksStore();
+  const { tasks, fetchTasks } = useOfflineTasksStore();
 
   useEffect(() => {
     fetchTasks();

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTasksStore } from "@/store/tasks";
+import { useOfflineTasksStore } from "@/store/offline-tasks";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -24,7 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Toaster, toast } from "sonner";
 
 export function AddTaskForm() {
-  const addTask = useTasksStore((state) => state.addTask);
+  const addTask = useOfflineTasksStore((state) => state.addTask);
   const [name, setName] = useState("");
   const [duration, setDuration] = useState(60);
   const [category, setCategory] = useState("");

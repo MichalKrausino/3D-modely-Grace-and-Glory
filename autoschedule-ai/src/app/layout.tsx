@@ -10,11 +10,23 @@ export const metadata: Metadata = {
   description: "Intelligent minimalist task planner",
 };
 
+"use client";
+
+import { useEffect } from "react";
+import { syncService } from "@/lib/sync";
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  useEffect(() => {
+    syncService.start();
+    return () => {
+      syncService.stop();
+    };
+  }, []);
+
   return (
     <html lang="en">
       <body className={inter.className}>
