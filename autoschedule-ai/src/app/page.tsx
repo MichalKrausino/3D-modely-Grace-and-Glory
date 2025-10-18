@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useOfflineTasksStore } from "@/store/offline-tasks";
+import { useTasksStore } from "@/store/tasks";
 import { TaskCard } from "@/components/tasks/TaskCard";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";

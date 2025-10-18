@@ -9,6 +9,7 @@ import state as app_state
 import datetime
 from scheduler import find_best_slot, get_mock_calendar
 from scheduler_models import Task as SchedulerTask, TimeSlot
+from db import supabase
 
 # --- Pydantic Models ---
 class TaskBase(BaseModel):
@@ -24,9 +25,6 @@ class Task(TaskBase):
     id: UUID
     status: Literal['Planned', 'In Progress', 'Done'] = 'Planned'
 
-# --- In-memory database ---
-db: List[Task] = []
-
 # --- FastAPI App ---
 app = FastAPI(
     title="AutoSchedule AI API",
@@ -35,7 +33,6 @@ app = FastAPI(
 )
 
 # --- CORS Middleware ---
-# This allows the frontend (running on localhost:3000) to communicate with the backend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -44,58 +41,63 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 # --- API Endpoints ---
 @app.get("/")
 def read_root():
     return {"message": "Welcome to AutoSchedule AI API"}
 
-@app.post("/tasks", response_model=Task, status_code=201)
+@app.post("/tasks", response_model=Task)
 def create_task(task_create: TaskCreate):
     """
     Create a new task.
     """
-    new_task = Task(id=uuid4(), **task_create.dict())
-    db.append(new_task)
-    return new_task
+    data, error = supabase.table("tasks").insert(task_create.dict()).execute()
+    if error:
+        raise HTTPException(status_code=400, detail=error.message)
+    return data[1][0]
+
 
 @app.get("/tasks", response_model=List[Task])
 def get_tasks():
     """
     Retrieve all tasks.
     """
-    return db
+    data, error = supabase.table("tasks").select("*").execute()
+    if error:
+        raise HTTPException(status_code=400, detail=error.message)
+    return data[1]
+
 
 @app.get("/tasks/{task_id}", response_model=Task)
 def get_task(task_id: UUID):
     """
     Retrieve a single task by its ID.
     """
-    task = next((task for task in db if task.id == task_id), None)
-    if task is None:
+    data, error = supabase.table("tasks").select("*").eq("id", str(task_id)).execute()
+    if error or not data[1]:
         raise HTTPException(status_code=404, detail="Task not found")
-    return task
+    return data[1][0]
+
 
 @app.put("/tasks/{task_id}", response_model=Task)
 def update_task_status(task_id: UUID, status: Literal['Planned', 'In Progress', 'Done']):
     """
     Update the status of a task.
     """
-    task = next((task for task in db if task.id == task_id), None)
-    if task is None:
+    data, error = supabase.table("tasks").update({"status": status}).eq("id", str(task_id)).execute()
+    if error or not data[1]:
         raise HTTPException(status_code=404, detail="Task not found")
-    task.status = status
-    return task
+    return data[1][0]
+
 
 @app.delete("/tasks/{task_id}", status_code=204)
 def delete_task(task_id: UUID):
     """
     Delete a task by its ID.
     """
-    task_index = next((i for i, task in enumerate(db) if task.id == task_id), None)
-    if task_index is None:
+    data, error = supabase.table("tasks").delete().eq("id", str(task_id)).execute()
+    if error or not data[1]:
         raise HTTPException(status_code=404, detail="Task not found")
-    db.pop(task_index)
     return
 
 @app.get("/auth/google")

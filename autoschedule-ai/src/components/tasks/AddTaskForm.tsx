@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useOfflineTasksStore } from "@/store/offline-tasks";
+import { useTasksStore } from "@/store/tasks";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -26,7 +26,7 @@ import { DatePicker } from "../ui/date-picker";
 import api from "@/lib/api";
 
 export function AddTaskForm() {
-  const addTask = useOfflineTasksStore((state) => state.addTask);
+  const addTask = useTasksStore((state) => state.addTask);
   const [name, setName] = useState("");
   const [duration, setDuration] = useState(60);
   const [category, setCategory] = useState("");

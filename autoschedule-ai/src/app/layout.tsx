@@ -4,8 +4,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
-import { useEffect } from "react";
-import { syncService } from "@/lib/sync";
 import { PageTransition } from "@/components/ui/page-transition";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -15,13 +13,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  useEffect(() => {
-    syncService.start();
-    return () => {
-      syncService.stop();
-    };
-  }, []);
-
   return (
     <html lang="en">
       <body className={inter.className}>

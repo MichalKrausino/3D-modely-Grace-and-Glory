@@ -1,7 +1,7 @@
 "use client";
 
 import { Task, TaskStatus } from "@/store/tasks";
-import { useOfflineTasksStore } from "@/store/offline-tasks";
+import { useTasksStore } from "@/store/tasks";
 import {
   Card,
   CardContent,
@@ -24,7 +24,7 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task }: TaskCardProps) {
-  const { updateTaskStatus, deleteTask } = useOfflineTasksStore();
+  const { updateTaskStatus, deleteTask } = useTasksStore();
 
   return (
     <Card>
