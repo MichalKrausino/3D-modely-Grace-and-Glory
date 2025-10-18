@@ -13,3 +13,6 @@ __pycache__/
 .idea/
 *.swp
 *.swo
+
+# Secrets
+client_secret.json

@@ -3,6 +3,10 @@ from pydantic import BaseModel, Field
 from typing import List, Optional, Literal
 from uuid import UUID, uuid4
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
+from google_auth import get_google_auth_url, fetch_google_token, get_calendar_service
+import state as app_state
+import datetime
 
 # --- Pydantic Models ---
 class TaskBase(BaseModel):
@@ -91,3 +95,43 @@ def delete_task(task_id: UUID):
         raise HTTPException(status_code=404, detail="Task not found")
     db.pop(task_index)
     return
+
+@app.get("/auth/google")
+def auth_google():
+    """
+    Redirects the user to the Google authentication page.
+    """
+    authorization_url, state = get_google_auth_url()
+    app_state.credentials_state = state  # Store state to prevent CSRF
+    return RedirectResponse(authorization_url)
+
+@app.get("/auth/callback")
+def auth_callback(code: str, state: str):
+    """
+    Handles the response from Google after the user has authorized the application.
+    """
+    if state != app_state.credentials_state:
+        raise HTTPException(status_code=400, detail="Invalid state parameter")
+
+    app_state.credentials = fetch_google_token(code)
+    return {"message": "Successfully authenticated with Google"}
+
+@app.get("/calendar/events")
+def get_calendar_events():
+    """
+    Fetches events from the user's Google Calendar.
+    """
+    if not app_state.credentials:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+
+    service = get_calendar_service(app_state.credentials)
+    now = datetime.datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time
+    events_result = service.events().list(
+        calendarId='primary',
+        timeMin=now,
+        maxResults=10,
+        singleEvents=True,
+        orderBy='startTime'
+    ).execute()
+    events = events_result.get('items', [])
+    return events
